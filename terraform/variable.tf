@@ -25,3 +25,4 @@ variable "router_nat" {}
 
 # IP ADDR VARS
 variable "lb_ip_name" {}
+variable "lb_ip_addr" {}

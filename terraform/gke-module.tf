@@ -38,7 +38,7 @@ module "gke" {
       name                      = "default-node-pool"
       machine_type              = var.machine_type
       node_locations            = "us-west4-a" # will create an initial_node_count per zone
-      min_count                 = 3
+      min_count                 = 2 # Warning: somewhat risky. Usually only have 1 preempted VM at a time, but it's possible to have 2. For my failover case, 2 is acceptable given cost savings.
       max_count                 = 20
       local_ssd_count           = 0
       spot                      = true
@@ -51,7 +51,7 @@ module "gke" {
       auto_repair               = true
       auto_upgrade              = true
       preemptible               = false
-      initial_node_count        = 3
+      initial_node_count        = 2
     },
   ]
 
