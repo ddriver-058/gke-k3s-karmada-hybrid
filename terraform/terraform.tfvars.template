@@ -1,0 +1,33 @@
+
+# CLUSTER VARS
+project_id = "my-hybrid-cluster-project"
+cluster_name = "my-hybrid-cluster"
+region = "us-west4" # Cheapest -- recommended for non-production. https://github.com/murphye/cheap-gke-cluster
+zones = ["us-west4-a"] # Can distribute across different zones in the same region
+master_ipv4_cidr_block = "1.2.3.4/28" # fake value -- I recommend checking TF docs
+network = "my-vpc-01"
+subnetwork = "my-vpc-subnet-01"
+network_cidr =  "1.2.3.4/16" # fake value -- I recommend checking TF docs
+ip_range_pods = "my-pods-range-01"
+ip_range_pods_cidr = "1.2.3.4/20" # fake value -- I recommend checking TF docs
+ip_range_services = "my-svc-range-01"
+ip_range_services_cidr = "1.2.3.4/20" # fake value -- I recommend checking TF docs
+master_authorized_networks = [
+    {
+        cidr_block = "1.2.3.4/32", # fake value -- use your cluster access-permitted networks
+        display_name = "my-controller-network"
+    }
+]
+
+# NODE POOL VARS
+machine_type = "e2-medium"
+node_locations = "us-west4-a,us-west4-b,us-west4-c"
+node_pool_service_account = "project-service-account@my-hybrid-cluster-project.iam.gserviceaccount.com"
+
+# NAT VARS
+router = "my-router"
+router_nat = "my-router-nat"
+
+# IP ADDR VARS
+lb_ip_name = "my-lb-ip"
+lb_ip_addr = "1.2.3.4"
