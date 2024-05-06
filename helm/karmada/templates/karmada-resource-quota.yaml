@@ -1,0 +1,22 @@
+# Karmada has pods requiring system-node-critical and system-cluster-critical PriorityClass
+# It seems that in GKE these require an explicit ResourceQuota to be applied to pods
+# Without this, installation fails
+# https://github.com/volcano-sh/volcano/issues/2379
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  # annotations:
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile
+  name: karmada-critical-pods
+  namespace: {{ include "karmada.namespace" . }}
+spec:
+  hard:
+    pods: 1G
+  scopeSelector:
+    matchExpressions:
+    - operator: In
+      scopeName: PriorityClass
+      values:
+      - system-node-critical
+      - system-cluster-critical
