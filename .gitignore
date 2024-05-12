@@ -5,3 +5,4 @@ terraform/.terraform
 *.tfvars
 argocd
 helm/karmada-desktop-agent
+submariner/myvars.txt

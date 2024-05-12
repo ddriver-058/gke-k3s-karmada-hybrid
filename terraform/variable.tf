@@ -15,7 +15,7 @@ variable "ip_range_services_cidr" {}
 variable "master_authorized_networks" {}
 
 # NODE POOL VARS
-variable "machine_type" {}
+variable "node_pools" {}
 variable "node_locations" {}
 variable "node_pool_service_account" {}
 

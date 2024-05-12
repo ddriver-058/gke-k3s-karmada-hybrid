@@ -1,4 +1,4 @@
-# Copied from https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/latest/submodules/private-cluster
+# https://registry.terraform.io/modules/terraform-google-modules/kubernetes-engine/google/latest/submodules/private-cluster
 
 # google_client_config and kubernetes provider must be explicitly specified like the following.
 data "google_client_config" "default" {}
@@ -33,27 +33,7 @@ module "gke" {
   deletion_protection = false
   remove_default_node_pool = true # Stops creation of "default pool"
 
-  node_pools = [
-    {
-      name                      = "default-node-pool"
-      machine_type              = var.machine_type
-      node_locations            = "us-west4-a" # will create an initial_node_count per zone
-      min_count                 = 2 # Warning: somewhat risky. Usually only have 1 preempted VM at a time, but it's possible to have 2. For my failover case, 2 is acceptable given cost savings.
-      max_count                 = 20
-      local_ssd_count           = 0
-      spot                      = true
-      disk_size_gb              = 20
-      disk_type                 = "pd-standard" # Cheaper option
-      image_type                = "COS_CONTAINERD"
-      enable_gcfs               = false
-      enable_gvnic              = false
-      logging_variant           = "DEFAULT"
-      auto_repair               = true
-      auto_upgrade              = true
-      preemptible               = false
-      initial_node_count        = 2
-    },
-  ]
+  node_pools = var.node_pools
 
   node_pools_oauth_scopes = {
     all = [
