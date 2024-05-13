@@ -1,0 +1,44 @@
+# Untested -- from Google Gemini. Use with caution!
+# Based on https://github.com/sridhargaddam/k8sscripts/tree/main/rp_filter_settings
+# Needed for challenges with GKE's networking. More here:
+# https://submariner.io/getting-started/quickstart/managed-kubernetes/gke/
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: submariner-netshoot
+spec:
+  selector:
+    matchLabels:
+      app: submariner-netshoot
+  template:
+    metadata:
+      labels:
+        app: submariner-netshoot
+    spec:
+      # Host network is required for the script functionality
+      hostNetwork: true
+      containers:
+      - name: netshoot-hostmount
+        image: nicolaka/netshoot
+        command: ["/bin/bash"]
+        args:
+        - "-c"
+        - "echo 2 > /proc/sys/net/ipv4/conf/eth0/rp_filter"
+        # Grant required privileges for netshoot
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          runAsUser: 0
+          capabilities:
+            add: ["ALL"]
+        volumeMounts:
+        - name: host-slash
+          mountPath: /host
+          readOnly: true
+      volumes:
+      - name: host-slash
+        hostPath:
+          path: /
+          type: ""
+      # Update restartPolicy if needed (Never in this example)
+      restartPolicy: Never
