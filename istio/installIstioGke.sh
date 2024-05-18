@@ -2,10 +2,6 @@
 export KUBECONFIG="$HOME/.kube/config"
 kubectl config use-context $GKE
 
-# Join GKE to karmada control plane
-karmadactl join gke --kubeconfig=~/.kube/karmada.config --cluster-kubeconfig=~/.kube/config --cluster-context=$GKE
-
-
 # Apply istio operator
 cat <<EOF | istioctl install -y -f -
 apiVersion: install.istio.io/v1alpha1
@@ -17,8 +13,8 @@ spec:
     global:
       meshID: mesh1
       multiCluster:
-        clusterName: member1
-      network: network1
+        clusterName: gke
+      network: network-gke
 EOF
 
 # Add east-west gateway
