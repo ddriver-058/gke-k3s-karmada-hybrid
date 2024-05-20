@@ -4,6 +4,9 @@ Ensure uptime through automatic failover for my local k3s cluster to GKE via Kar
  ## Progress
  This project is a work-in-progress. 
  
+ - 5/20/2024
+     - I tested accessing my desktop cluster's API server from a linkerd mirrored service, which seemed to work OK. However, adding sidecar proxy injectors to the karmada pods didn't seem to allow karmadactl join to add the desktop server by the mirrored service, as it returned an error connecting to server: EOF error. I'm not certain where the issue is, but both the CLI (via telepresence) and the karmada pods could access the mirrored service, so the issue may be with the handoff of API server requests through the linkerd gateway.
+	 - One obvious workaround would be to attempt to join the desktop cluster to the karmada api server in Pull mode. I'm not exactly sure how the mechanics of pull mode differ, but at the very least, it would involve mirroring the karmada api server service from GKE to desktop. Given that the GKE cluster can be joined via Pull mode by reaching the service, it could be that joining the desktop via a mirrored service "just works" the same way.
  - 5/18/2024
      - After configuring istio, I was still interested in solutions that avoid the need to expose the local k3s cluster's API server. I decided to configure linkerd due to its hierarchical mode for multicluster networking, which involves one-way copying of services between clusters. This could work well for my case, since I plan to have traffic flow in to the cloud cluster, so I just need local services copied to the cloud cluster.
 	 - I configured service mirroring with linkerd and successfully completed a cross-cluster, cloud-to-local request to a helloworld deployment! See configureLinkerd.sh for the test case.
