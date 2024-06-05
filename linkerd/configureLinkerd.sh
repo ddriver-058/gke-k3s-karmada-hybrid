@@ -33,13 +33,18 @@ linkerd install \
   --identity-issuer-key-file issuer.key \
   | kubectl apply -f -
 
-
 # Install linkerd multicluster
+export KUBECONFIG=~/.kube/config
 kubectl config use-context $GKE
 linkerd multicluster install | \
     kubectl apply -f -
 
 # Install linkerd to desktop
+# May need to ensure gateway is installed to node where port is forwarded to.
+# add to linkerd-gateway deployement:
+#      nodeSelector:
+#        kubernetes.io/hostname: <hostname>
+# Delete the gateway service, then install again
 kubectl config use-context desktop
 linkerd multicluster install | \
     kubectl apply -f -
@@ -47,15 +52,17 @@ linkerd multicluster install | \
 # Now link. First, we'll link the GKE to the desktop.
 # This copies services from GKE to the desktop.
 # Commenting this out because it seems not strictly necessary for my use case.
+# (My goal is for traffic to go from a CLB to a splitter service that forwards to either cloud (internal) or desktop).
 # linkerd --context=$GKE multicluster link --cluster-name gke |
 #   kubectl --context=desktop apply -f -
 
 # The other way around: copying desktop services to cloud.
 # For using a local LB like service LB for k3s, we need to overwrite the gateway address with the WAN IP.
 # We'll then need to expose the gateway by port forwarding.
+# Then, for the node being forwarded to, configure UFW to allow GKE's cloud router IP.
 linkerd --context=desktop multicluster link --cluster-name desktop --gateway-addresses 65.185.3.10 |
   kubectl --context=$GKE apply -f -
-
+  
 # Check via:
 linkerd --context=$GKE multicluster check
 
@@ -68,5 +75,11 @@ kubectl label svc helloworld mirror.linkerd.io/exported=true
 # Create an injected nginx container and send a request to the copied service.
 kubectl config use-context $GKE
 kubectl create deployment --image nginx test
-kubectl get deployment test -o yaml | linkerd inject - | kubectl apply --context $GKE -f -
+kubectl get --context $GKE deployment test -o yaml | linkerd inject - | kubectl apply --context $GKE -f -
 kubectl exec -it test-7fbd6cb5dd-md52j --container nginx -- bash # curl http://helloworld-desktop.default.svc.cluster.local
+
+# Create an injected kubectl service
+kubectl apply -f kubectl.yaml
+kubectl get --context $GKE deployment kubectl -o yaml | linkerd inject - | kubectl apply --context $GKE -f -
+kubectl exec -it kubectl-5ccd8d8f79-gzfrr --container kubectl -- bash
+# Inside the container, echo "<multiline kubeconfig>" > /.kube/config

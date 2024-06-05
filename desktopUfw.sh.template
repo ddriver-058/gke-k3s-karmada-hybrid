@@ -1,0 +1,9 @@
+CLOUD_ROUTER_IP=1.2.3.4 
+
+# Allow k3s API server (6443), SSH (22), and linkerd gateway (4143,4191) to local IP ranges 
+ufw allow from 10.0.0.0/8 proto tcp to any port 6443,22,4143,4191
+ufw allow from 172.16.0.0/12 proto tcp to any port 6443,22,4143,4191
+ufw allow from 192.168.0.0/16 proto tcp to any port 6443,22,4143,4191
+
+# Allow same ports sans SSH from cloud router
+ufw allow from $CLOUD_ROUTER_IP/32 proto tcp to any port 6443,4143,4191
