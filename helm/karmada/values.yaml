@@ -159,8 +159,8 @@ scheduler:
   ## @param scheduler.replicaCount target replicas of the scheduler
   replicaCount: 1
   ## @param scheduler.podAnnotations annotations of the scheduler pods
-  podAnnotations: 
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  #  linkerd.io/inject: enabled
   ## @param scheduler.podLabels labels of the scheduler pods
   podLabels: {}
   ## @param image.registry karmada scheduler image registry
@@ -216,8 +216,8 @@ webhook:
   ## @param webhook.replicaCount target replicas
   replicaCount: 1
   ## @param webhook.podAnnotations annotations of the webhook pods
-  podAnnotations: 
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param webhook.podLabels labels of the webhook pods
   podLabels: {}
   ## @param image.registry karmada webhook image registry
@@ -273,8 +273,8 @@ controllerManager:
   ## @param controllerManager.replicaCount target replicas of the karmada-controller-manager
   replicaCount: 1
   ## @param controllerManager.podAnnotations annotations of the karmada-controller-manager pods
-  podAnnotations: 
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param controllerManager.podLabels labels of the karmada-controller-manager pods
   podLabels: {}
   ## @param image.registry karmada controller manager image registry
@@ -339,8 +339,8 @@ apiServer:
   ## @param apiServer.replicaCount target replicas of the karmada-apiserver
   replicaCount: 1
   ## @param apiServer.podAnnotations annotations of the karmada-apiserver pods
-  podAnnotations: 
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param apiServer.podLabels labels of the karmada-apiserver pods
   podLabels: {}
   ## @param image.registry keube-apiserver image registry
@@ -421,8 +421,8 @@ aggregatedApiServer:
   ## @param aggregatedApiServer.replicaCount target replicas of the karmada-aggregated-apiserver
   replicaCount: 1
   ## @param aggregatedApiServer.podAnnotations annotations of the karmada-aggregated-apiserver pods
-  podAnnotations: 
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param aggregatedApiServer.podLabels labels of the karmada-aggregated-apiserver pods
   podLabels: {}
   ## @param image.registry karmada aggregatedApiServer image registry
@@ -480,8 +480,8 @@ metricsAdapter:
   ## @param metricsAadpter.replicaCount target replicas of the karmada-mertics-adapter
   replicaCount: 1
   ## @param metricsAadpter.podAnnotations annotations of the karmada-mertics-adapter pods
-  podAnnotations: 
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param metricsAadpter.podLabels labels of the karmada-mertics-adapter pods
   podLabels: {}
   ## @param image.registry karmada metricsAadpter image registry
@@ -542,8 +542,8 @@ kubeControllerManager:
   ## @param kubeControllerManager.replicaCount target replicas of the kube-controller-manager
   replicaCount: 1
   ## @param kubeControllerManager.podAnnotations annotations of the kube-controller-manager pods
-  podAnnotations:
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param kubeControllerManager.podLabels labels of the kube-controller-manager pods
   podLabels: {}
   ## @param image.registry kubeControllerManager image registry
@@ -709,8 +709,8 @@ agent:
   ## @param agent.replicaCount target replicas
   replicaCount: 1
   ## @param agent.podAnnotations annotations of the agent pods
-  podAnnotations:
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param agent.podLabels labels of the agent pods
   podLabels: {}
   ## @param image.registry karmada agent image registry
@@ -789,8 +789,8 @@ schedulerEstimator:
   labels:
     app: karmada-scheduler-estimator
   ## @param schedulerEstimator.podAnnotations annotations of the scheduler-estimator pods
-  podAnnotations:
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param schedulerEstimator.podLabels labels of the scheduler-estimator pods
   podLabels: {}
   ## @param image.registry karmada schedulerEstimator image registry
@@ -849,8 +849,8 @@ descheduler:
   ## @param descheduler.replicaCount target replicas of the descheduler
   replicaCount: 2
   ## @param descheduler.podAnnotations annotations of the descheduler pods
-  podAnnotations:
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param descheduler.podLabels labels of the descheduler pods
   podLabels: {}
   ## @param image.registry karmada descheduler image registry
@@ -908,8 +908,8 @@ search:
   ## @param search.replicaCount target replicas
   replicaCount: 2
   ## @param search.podAnnotations annotations of the search pods
-  podAnnotations:
-    linkerd.io/inject: enabled
+  podAnnotations: {}
+  # linkerd.io/inject: enabled
   ## @param search.podLabels labels of the search pods
   podLabels: {}
   ## @param image.registry karmada search image registry
