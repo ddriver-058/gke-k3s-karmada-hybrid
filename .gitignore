@@ -6,3 +6,4 @@ terraform/.terraform
 argocd
 helm/karmada-desktop-agent
 submariner/myvars.txt
+desktopUfw.sh

@@ -3,7 +3,11 @@ Ensure uptime through automatic failover for my local k3s cluster to GKE via Kar
 
  ## Progress
  This project is a work-in-progress. 
- 
+ - 6/5/2024
+     - To more securely expose my desktop k8s's API server, I just need to filter traffic on one node, so UFW is fine (no  need for a tool like OPNsense). I can allow traffic to the linkerd/k3s ports from the public IP of my cloud router, but disable access otherwise. This, combined with the usual client cert requirement, makes me comfortable enough to move forward.
+	 - Because I'll be connecting to the local cluster directly with Karmada's Push mode, I won't need to rely on a linkerd service, so I removed the injected proxies as they seemed to give Karmada issues.
+	 - I was once again able to configure a linkerd-multicluster link from desktop to cloud, as well as register both clusters with Karmada. Now, though, I can avoid the pitfall of having a widely-exposed API server.
+	 - I explored a few different ideas for avoiding the need to widely expose the desktop API server, which taught me some important lessons about linkerd-multicluster's requirements around exposing the API server, the best tools to restrict traffic to the API server, and the practicality of port forwarding as an alternative to other network meshing approaches (e.g., submariner, VPNs). It was a significant side-track, but I learned a lot.
  - 5/30/2024
      - After a bit of a break, I did some research today to investigate how I can safely expose my desktop cluster's API server, since this will be necessary (linkerd-multicluster requires the destination cluster for mirrored services to have an exposed API server). My goal is to combine the k3s client cert requirement with IP whitelisting. While nginx and HAProxy support IP whitelisting, it doesn't apply to the k8s API server, which is a tcp service, not a web service. Instead, I'm going to focus on the possibility of using a firewall like OPNsense to restrict traffic to it, because I assume it can define rules for tcp connections, like ufw can. With access to the API server behind a source IP whitelist and a client cert requirement, I'll feel OK about moving forward to focus on using linkerd mirrored services with traffic splitting to access karmada-managed deployments.
  - 5/20/2024
