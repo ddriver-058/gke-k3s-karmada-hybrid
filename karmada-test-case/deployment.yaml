@@ -1,0 +1,33 @@
+# https://github.com/karmada-io/karmada/blob/master/samples/nginx/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  labels:
+    mirror.linkerd.io/exported: "true"
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
