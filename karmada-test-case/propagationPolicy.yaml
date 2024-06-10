@@ -1,0 +1,31 @@
+# https://github.com/karmada-io/karmada/blob/master/samples/nginx/propagationpolicy.yaml
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: nginx-propagation
+spec:
+  resourceSelectors:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: nginx
+    - apiVersion: v1
+      kind: Service
+      name: nginx
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - desktop
+        - gke
+    replicaScheduling:
+      replicaDivisionPreference: Weighted
+      replicaSchedulingType: Divided
+      weightPreference:
+        staticWeightList:
+          - targetCluster:
+              clusterNames:
+                - member1
+            weight: 1
+          - targetCluster:
+              clusterNames:
+                - member2
+            weight: 1

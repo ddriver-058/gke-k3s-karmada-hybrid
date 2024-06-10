@@ -3,6 +3,9 @@ Ensure uptime through automatic failover for my local k3s cluster to GKE via Kar
 
  ## Progress
  This project is a work-in-progress. 
+ - 6/9/2024
+     - With linkerd and karmada configured, I propagated an nginx deployment to my 2 clusters, along with a service labeled for mirroring. This led to services for each instance appearing in the GKE cluster, so I defined a linkerd HTTPRoute to split traffic between them. To test this, I'll need some kind of injected access method, so I figure this would be a good time to test out using ingress-nginx to reach the HTTPRoute. Next time I work on this project, I plan to install an injected ingress-nginx and change the index.html of one of the propagated nginx instances to confirm the traffic split.
+	 - I also want to document why I've needed to reinstall linkerd each time I work on this project: The trust anchor certificates expire when the clusters are suspended. Deleting the linkerd and linkerd-multicluster namespaces and reinstalling fixes the issue.
  - 6/5/2024
      - To more securely expose my desktop k8s's API server, I just need to filter traffic on one node, so UFW is fine (no  need for a tool like OPNsense). I can allow traffic to the linkerd/k3s ports from the public IP of my cloud router, but disable access otherwise. This, combined with the usual client cert requirement, makes me comfortable enough to move forward.
 	 - Because I'll be connecting to the local cluster directly with Karmada's Push mode, I won't need to rely on a linkerd service, so I removed the injected proxies as they seemed to give Karmada issues.
