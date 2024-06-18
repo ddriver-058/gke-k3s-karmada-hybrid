@@ -46,13 +46,13 @@ controller:
     http: 80
     https: 443
   # -- Will add custom configuration options to Nginx https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
-  config: {}
+  config: 
+    forwarded-for-header: "proxy_protocol"
+    enable-real-ip: "true"
   # -- Annotations to be added to the controller config configuration configmap.
   configAnnotations: {}
   # -- Will add custom headers before sending traffic to backends according to https://github.com/kubernetes/ingress-nginx/tree/main/docs/examples/customization/custom-headers
-  proxySetHeaders: 
-    enable-real-ip: true
-    forwarded-for-header: proxy_protocol
+  proxySetHeaders: {}
   # -- Will add custom headers before sending response traffic to the client according to: https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#add-headers
   addHeaders: {}
   # -- Optionally customize the pod dnsConfig.
