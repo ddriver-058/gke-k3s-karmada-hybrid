@@ -8,6 +8,33 @@ spec:
     - apiVersion: apps/v1
       kind: Deployment
       name: nginx
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - desktop
+        - gke   # You can comment out either option to test backends on either cluster. (delete the deployment & propagationpolicy, then reapply)
+    replicaScheduling:
+      replicaDivisionPreference: Weighted
+      replicaSchedulingType: Divided
+      weightPreference:
+        staticWeightList:
+          - targetCluster:
+              clusterNames:
+                - desktop
+            weight: 10 # more cost-effective
+          - targetCluster:
+              clusterNames:
+                - gke
+            weight: 1
+---
+# https://github.com/karmada-io/karmada/blob/master/samples/nginx/propagationpolicy.yaml
+# Define a separate PropagationPolicy for the service to ensure it's always available on both.
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: nginx-propagation
+spec:
+  resourceSelectors:
     - apiVersion: v1
       kind: Service
       name: nginx
@@ -23,9 +50,9 @@ spec:
         staticWeightList:
           - targetCluster:
               clusterNames:
-                - member1
-            weight: 1
+                - desktop
+            weight: 10
           - targetCluster:
               clusterNames:
-                - member2
+                - gke
             weight: 1

@@ -33,6 +33,10 @@ linkerd install \
   --identity-issuer-key-file issuer.key \
   | kubectl apply -f -
 
+# Also will want to install CRDs to karmada cluster controller
+# export KUBECONFG=~/.kube/karmada.config
+# linkerd install --crds | kubectl apply -f -
+
 # Install linkerd multicluster
 export KUBECONFIG=~/.kube/config
 kubectl config use-context $GKE
@@ -40,11 +44,6 @@ linkerd multicluster install | \
     kubectl apply -f -
 
 # Install linkerd to desktop
-# May need to ensure gateway is installed to node where port is forwarded to.
-# add to linkerd-gateway deployement:
-#      nodeSelector:
-#        kubernetes.io/hostname: <hostname>
-# Delete the gateway service, then install again
 kubectl config use-context desktop
 linkerd multicluster install | \
     kubectl apply -f -
@@ -60,6 +59,10 @@ linkerd multicluster install | \
 # For using a local LB like service LB for k3s, we need to overwrite the gateway address with the WAN IP.
 # We'll then need to expose the gateway by port forwarding.
 # Then, for the node being forwarded to, configure UFW to allow GKE's cloud router IP.
+# Note: this requires the WAN IP to be used in your kubeconfig for the local cluster.
+#       It also requires that the API server be available on the WAN.
+#       For k3s, I recommend configuring a tls-san for the WAN IP in /etc/rancher/k3s/config.yaml, then
+#       restarting the k3s system service on the leader node.
 linkerd --context=desktop multicluster link --cluster-name desktop --gateway-addresses 65.185.3.10 |
   kubectl --context=$GKE apply -f -
   

@@ -1,0 +1,20 @@
+Steps to enable cloud failover for my existing k3s cluster:
+    Install ArgoCD in the GKE cluster.
+    Migrate local container registry to GKE. (largely unrelated, but an essential scalability / 
+        usability step)
+    Configure linkerd, linkerd-multicluster, and karmada in the GKE cluster.
+    Configure linkerd and linkerd-multicluster in the local cluster.
+    Link the local cluster to GKE. Check with 'linkerd --context=$GKE multicluster check'
+    Connect the GKE cluster to Karmada in Pull mode. Connect the local cluster in Push mode via port forwarding. 
+        Use ufw to restrict access to the local k8s API server to the address of the Cloud Router.
+    Using ArgoCD, recreate existing deployments in the karmada control plane and define propagation policies to 
+        apply them to non-overlapping namespaces in both GKE and local. Ensure that the services 
+        are labeled for mirroring.
+    Install ingress-nginx in the GKE cluster with linkerd injection enabled.
+    Using ArgoCD, apply HTTPRoutes to the GKE cluster splitting traffic between GKE and local.
+    By editing the hosts file, check that traffic is being split correctly on the CLB.
+    After verifying traffic splitting for each deployment, change scaeangate.io to point to the CLB rather than 
+        the local k3s serviceLB.
+    Delete the old, non-Karmada deployments on the local cluster.
+    Enjoy cloud failover!
+ 
