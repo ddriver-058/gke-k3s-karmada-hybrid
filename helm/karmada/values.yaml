@@ -44,7 +44,11 @@ clusterDomain: "cluster.local"
 systemNamespace: "karmada-system"
 
 ## @param components component list
-components: ["metricsAdapter"]
+components: [
+  "metricsAdapter",
+  "schedulerEstimator",
+  "descheduler"
+]
   # components: [
   #   "schedulerEstimator"
   #   "descheduler"
