@@ -11,7 +11,7 @@ Steps to enable cloud failover for my existing k3s cluster:
         apply them to non-overlapping namespaces in both GKE and local. Ensure that the services 
         are labeled for mirroring.
     Install ingress-nginx in the GKE cluster with linkerd injection enabled.
-    Using ArgoCD, apply HTTPRoutes to the GKE cluster splitting traffic between GKE and local.
+    Using ArgoCD, apply TrafficSplit to the GKE cluster splitting traffic between GKE and local.
     By editing the hosts file, check that traffic is being split correctly on the CLB.
     After verifying traffic splitting for each deployment, change scaeangate.io to point to the CLB rather than 
         the local k3s serviceLB.

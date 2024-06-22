@@ -12,4 +12,6 @@ kubectl apply -f httproute.yaml
 # Let's ensure that the traffic is routed 50/50 by changing /usr/share/nginx/html/index.html in the desktop nginx.
 # Use kubectl exec.
 
-
+# With an inject ingress-nginx, we can apply an Ingress to reach our app.
+# This will be the default backend. We will apply directly to GKE.
+kubectl apply -f ingress.yaml

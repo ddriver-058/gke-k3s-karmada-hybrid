@@ -3,8 +3,10 @@ kind: TrafficSplit
 metadata:
     name: nginx-route
     labels:
+        # This enables linkerd-failover to auto-adjust weights
         failover.linkerd.io/controlled-by: linkerd-failover
     annotations:
+        # This can be used to designate the first service to route to
         failover.linkerd.io/primary-service: nginx
 spec:
     service: nginx

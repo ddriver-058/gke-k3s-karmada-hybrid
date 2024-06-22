@@ -1,0 +1,67 @@
+# https://github.com/karmada-io/karmada/blob/master/samples/nginx/propagationpolicy.yaml
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: {{ include "example.fullname" . }}
+spec:
+  resourceSelectors:
+    # You may need to list more resource types, depending on your deployment.
+    # app.kubernetes.io/instance should be the name of the helm installation.
+    - apiVersion: apps/v1
+      kind: Deployment
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/instance: <app or installation name>
+    - apiVersion: v1
+      kind: Pod
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/instance: <app or installation name>
+    - apiVersion: v1
+      kind: Service
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/instance: <app or installation name>
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - desktop
+        - gke
+    replicaScheduling:
+      replicaDivisionPreference: Weighted
+      replicaSchedulingType: Divided
+      weightPreference:
+        staticWeightList:
+          - targetCluster:
+              clusterNames:
+                - desktop
+            weight: 10 # more cost-effective
+          - targetCluster:
+              clusterNames:
+                - gke
+            weight: 1
+---
+apiVersion: policy.karmada.io/v1alpha1
+kind: PropagationPolicy
+metadata:
+  name: {{ include "example.fullname" . }}-ingress
+spec:
+  resourceSelectors:
+    - apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/instance: <app or installation name>
+  placement:
+    clusterAffinity:
+      clusterNames:
+        - gke
+    replicaScheduling:
+      replicaDivisionPreference: Weighted
+      replicaSchedulingType: Divided
+      weightPreference:
+        staticWeightList:
+          - targetCluster:
+              clusterNames:
+                - gke
+            weight: 1

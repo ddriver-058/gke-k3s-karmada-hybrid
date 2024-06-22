@@ -1,35 +1,38 @@
 # gke-k3s-karmada-hybrid
-Ensure uptime through automatic failover for my local k3s cluster to GKE via Karmada.
 
- ## Progress
- This project is a work-in-progress. 
- - 6/9/2024
-     - With linkerd and karmada configured, I propagated an nginx deployment to my 2 clusters, along with a service labeled for mirroring. This led to services for each instance appearing in the GKE cluster, so I defined a linkerd HTTPRoute to split traffic between them. To test this, I'll need some kind of injected access method, so I figure this would be a good time to test out using ingress-nginx to reach the HTTPRoute. Next time I work on this project, I plan to install an injected ingress-nginx and change the index.html of one of the propagated nginx instances to confirm the traffic split.
-	 - I also want to document why I've needed to reinstall linkerd each time I work on this project: The trust anchor certificates expire when the clusters are suspended. Deleting the linkerd and linkerd-multicluster namespaces and reinstalling fixes the issue.
- - 6/5/2024
-     - To more securely expose my desktop k8s's API server, I just need to filter traffic on one node, so UFW is fine (no  need for a tool like OPNsense). I can allow traffic to the linkerd/k3s ports from the public IP of my cloud router, but disable access otherwise. This, combined with the usual client cert requirement, makes me comfortable enough to move forward.
-	 - Because I'll be connecting to the local cluster directly with Karmada's Push mode, I won't need to rely on a linkerd service, so I removed the injected proxies as they seemed to give Karmada issues.
-	 - I was once again able to configure a linkerd-multicluster link from desktop to cloud, as well as register both clusters with Karmada. Now, though, I can avoid the pitfall of having a widely-exposed API server.
-	 - I explored a few different ideas for avoiding the need to widely expose the desktop API server, which taught me some important lessons about linkerd-multicluster's requirements around exposing the API server, the best tools to restrict traffic to the API server, and the practicality of port forwarding as an alternative to other network meshing approaches (e.g., submariner, VPNs). It was a significant side-track, but I learned a lot.
- - 5/30/2024
-     - After a bit of a break, I did some research today to investigate how I can safely expose my desktop cluster's API server, since this will be necessary (linkerd-multicluster requires the destination cluster for mirrored services to have an exposed API server). My goal is to combine the k3s client cert requirement with IP whitelisting. While nginx and HAProxy support IP whitelisting, it doesn't apply to the k8s API server, which is a tcp service, not a web service. Instead, I'm going to focus on the possibility of using a firewall like OPNsense to restrict traffic to it, because I assume it can define rules for tcp connections, like ufw can. With access to the API server behind a source IP whitelist and a client cert requirement, I'll feel OK about moving forward to focus on using linkerd mirrored services with traffic splitting to access karmada-managed deployments.
- - 5/20/2024
-     - I tested accessing my desktop cluster's API server from a linkerd mirrored service, which seemed to work OK. However, adding sidecar proxy injectors to the karmada pods didn't seem to allow karmadactl join to add the desktop server by the mirrored service, as it returned an error connecting to server: EOF error. I'm not certain where the issue is, but both the CLI (via telepresence) and the karmada pods could access the mirrored service, so the issue may be with the handoff of API server requests through the linkerd gateway.
-	 - One obvious workaround would be to attempt to join the desktop cluster to the karmada api server in Pull mode. I'm not exactly sure how the mechanics of pull mode differ, but at the very least, it would involve mirroring the karmada api server service from GKE to desktop. Given that the GKE cluster can be joined via Pull mode by reaching the service, it could be that joining the desktop via a mirrored service "just works" the same way.
- - 5/18/2024
-     - After configuring istio, I was still interested in solutions that avoid the need to expose the local k3s cluster's API server. I decided to configure linkerd due to its hierarchical mode for multicluster networking, which involves one-way copying of services between clusters. This could work well for my case, since I plan to have traffic flow in to the cloud cluster, so I just need local services copied to the cloud cluster.
-	 - I configured service mirroring with linkerd and successfully completed a cross-cluster, cloud-to-local request to a helloworld deployment! See configureLinkerd.sh for the test case.
-	 - For the previous /healthz issue, it can be worked around by registering the GKE cluster in karmada's Pull mode.
-	 - I tried exposing the k3s API server directly, and was able to register it to the karmada control plane in Push mode. I succesfully used Karmada to propagate the Istio secrets to my clusters! 
-	     - It seems like it should be possible to inject the linkerd sidecar into the correct karmada components to enable it to access the k3s API server via a mirrored service, eliminating the need to expose the API server, which would be a security boost.
-	 - I'm planning to continue with linkerd because it's a cost-effective solution that meets the requirements for this project. Ideally, with linkerd, the GKE cluster will only need one CLB.
-	 - The other remaining challenge is to dynamically route to either the cloud service or the mirrored desktop service based on availability.
- - 5/16/2024
-     - The submariner workaround requires an OS image for GKE nodes that is no longer supported. Hence submariner is a no-go.
-	 - Multicluster networking can still be achieved in a non-flat network, as described [here](https://karmada.io/docs/userguide/service/working-with-istio-on-non-flat-network). I added an istio folder containing the setup scripts.
-	 - The current challenge is that the karmada cluster controller manager can't access the GKE API server /healthz. I thought the issue could be needing the VPC added as a master authorized network, but that didn't seem to help. I tried adding pod and svc CIDR as well. I will need to dig into more reasons why the /healthz would return an i/o timeout from the karmada control plane.
- - 5/12/2024 
-	 - Current challenge is configuring Submariner. We need to because Karmada exposes its API server on a cluster-internal address when installed via Helm (it seemed to use a node IP when installed via karmadactl, which is unworkable without a VPN),
-	 - GKE requires a workaround to work with submariner. See [here](https://submariner.io/getting-started/quickstart/managed-kubernetes/gke/)
-	 - Since I'm using spot nodes, the most sustainable path is to implement the workaround script as a daemonset. 
-	 - I'll also need to adjust my GKE Terraform manifests to configure firewall rules, etc. to match the requirements.
+This repo allows for the implementation of the below archiecture to automate cloud failover for a local k3s cluster to a GKE cluster (on separate networks). This setup provides improves the availability of my personal site while stil taking advantage of the reduced computing costs of using local resources.
+
+![failover diagram](gke-k3s-karmada-hybrid.drawio.png "Failover Diagram")
+
+It uses Karmada for multicluster orchestration. It uses linkerd-multicluster, linkerd-smi, and linkerd-failover for multicluster ingress with failover traffic splitting. Karmada manages deployments across both clusters, and linkerd-multicluster mirrors the services from the k3s cluster to GKE, where a TrafficSplit resource marked for failover divides the traffic and auto-adjusts weights based on the availability of the application in each cluster.
+
+For information about the development of this architecture and its challenges, check out progressLog.md.
+
+## Setup
+
+This repository includes setup steps that can be followed with some care to achieve the same architecture. Here is a high-level step-by-step guide (Note that the k3s cluster is referred to as "desktop", since I used a testing cluster on my desktop during testing and development):
+
+1. Configure a k3s cluster by referring to the k3s documentation. Configure the cluster to set --tls-san to the address used to access the cluster's API server from outside (e.g., a router's WAN address).
+2. Configure a GKE cluster using the manifests in /terraform.
+3. Install linkerd and linkerd-multicluster in both clusters using the steps in /linkerd/configureLinkerd.sh
+4. Install linkerd-smi and linkerd-failover in the ingress cluster (GKE) using /linkerd/configureLinkerdFailover.sh
+5. Expose the k3s cluster's API server port (6443) and the linkerd-gateway ports (4143 and 4191), e.g. by port-forwarding. (Configure the firewall using configureUfw.sh.template as a starting point)
+6. Link the k3s cluster to GKE using the step in /linkerd/configureLinkerd.sh
+7. Install karmada to GKE using the Helm chart in /helm/karmada.
+8. Join the GKE cluster to Karmada in Pull mode following the steps in /karmada/configureKarmada.sh
+9. Join the k3s cluster to Karmada in Push mode following the steps in /karmada/configureKarmada.sh
+10. Install the (linkerd proxy sidecar-injected) ingress-nginx to GKE using the helm chart in /helm/ingress-nginx.
+11. Now you can apply deployments to Karmada's API server. By applying PropagationPolicy, you can propagate them to your GKE and k3s clusters. By marking services for linkerd mirroring, you can cause k3s services to appear in GKE. By defining TrafficSplits for your GKE-desktop service pairs with failover annotations, you can use them as the backend for ingress to achieve multicluster failover.
+
+## Deploying applications to this setup
+I included an example Helm chart in /helm/example that shows a default Helm chart with changes applied to faciliate this failover setup. These include:
+
+- Marking services for mirroring by linkerd in templates/service.yaml
+- Including a propagationPolicy.yaml to propagate the chart's resources. I recommend using 'helm template' to check all resource types that will need propagation.
+- Annotating ingress with ssl-passthrough=false and service-upstream=true
+
+In addition, the ingress cluster will need to have a TrafficSplit resource applied to it with a controlled-by label and primary-service annotation to enable failover service routing. See karmada-test-case/trafficsplit.yaml for an example.
+
+## A note on ingress
+Because I use ArgoCD, I needed to enable SSL passthrough in helm/ingress-nginx. This means that any app that doesn't serve HTTPS traffic without a proxy will need the ssl-passthrough=false annotation. In addition, this helm chart has the necessary changes for linkerd sidecar injection. It also uses an externalTrafficPolicy=local, along with configuration options set (enable-real-ip=true and forwarded-for-header=proxy-protocol) to enable source IP preservation, to allow for IP whitelisting.
+
