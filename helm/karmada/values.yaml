@@ -45,9 +45,7 @@ systemNamespace: "karmada-system"
 
 ## @param components component list
 components: [
-  "metricsAdapter",
-  "schedulerEstimator",
-  "descheduler"
+  "metricsAdapter"
 ]
   # components: [
   #   "schedulerEstimator"
@@ -767,29 +765,7 @@ schedulerEstimator:
   ## @param schedulerEstimator.memberClusters each cluster requires an estimator component, fill in the information for each cluster
   memberClusters:
       ## @param schedulerEstimator.memberClusterInfo[0].clusterName the name of the member cluster
-    - clusterName: "gke"
-      ## @param schedulerEstimator.memberClusterInfo[0].replicaCount target replicas
-      replicaCount: 1
-      ## kubeconfig of the member cluster
-      kubeconfig:
-        ## @param schedulerEstimator.memberClusterInfo[0].kubeconfig.server apiserver of the member cluster
-        server: ""
-        ## @param schedulerEstimator.memberClusterInfo[0].kubeconfig.caCrt ca of the certificate
-        caCrt: |
-          -----BEGIN CERTIFICATE-----
-          XXXXXXXXXXXXXXXXXXXXXXXXXXX
-          -----END CERTIFICATE-----
-        ## @param schedulerEstimator.memberClusterInfo[0].kubeconfig.crt crt of the certificate
-        crt: |
-          -----BEGIN CERTIFICATE-----
-          XXXXXXXXXXXXXXXXXXXXXXXXXXX
-          -----END CERTIFICATE-----
-        ## @param schedulerEstimator.memberClusterInfo[0].kubeconfig.key key of the certificate
-        key: |
-          -----BEGIN RSA PRIVATE KEY-----
-          XXXXXXXXXXXXXXXXXXXXXXXXXXX
-          -----END RSA PRIVATE KEY-----
-    - clusterName: "vms"
+    - clusterName: ""
       ## @param schedulerEstimator.memberClusterInfo[0].replicaCount target replicas
       replicaCount: 1
       ## kubeconfig of the member cluster
