@@ -22,13 +22,17 @@ telepresence helm install
 telepresence connect
 
 # Now we can create the token.
-karmadactl token create --print-register-command --kubeconfig karmada.config
+karmadactl token create --print-register-command --kubeconfig ~/.kube/karmada.config
 
 # Switch to member cluster context and execute join command.
 kubectl config use-context $GKE
 # cluster-name=gke is used for easier referencing + max name length
+# It may ask you to remove some things, like karmada-system/karmada-kubeconfig
+# IME, deleting this will eventually break karmada. So output the secret, delete it, then reapply after the join
+kubectl get -n karmada-system karmada-kubeconfig -o yaml > karmada-kubeconfig.yaml
 karmadactl register <CONTROL_PLANE_API> --token <TOKEN> --discovery-token-ca-cert-hash <CA_CERT_HASH> --cluster-name gke 
-
+kubectl delete -f karmada-kubeconfig.yaml
+kubectl apply -f karmada-kubeconfig.yaml
 
 # Join the local desktop cluster
 # The desktop can't access the karmada API server by its internal address.
