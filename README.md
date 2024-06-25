@@ -1,6 +1,6 @@
 # gke-k3s-karmada-hybrid
 
-This repo allows for the implementation of the below archiecture to automate cloud failover for a local k3s cluster to a GKE cluster (on separate networks). This setup provides improves the availability of my personal site while stil taking advantage of the reduced computing costs of using local resources.
+This repo allows for the implementation of the below archiecture to automate cloud failover for a local k3s cluster to a GKE cluster (on separate networks). This setup provides improves the availability of my personal site while still taking advantage of the reduced computing costs of using local resources.
 
 ![failover diagram](gke-k3s-karmada-hybrid.drawio.png "Failover Diagram")
 
