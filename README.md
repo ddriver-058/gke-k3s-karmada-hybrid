@@ -1,6 +1,6 @@
 # gke-k3s-karmada-hybrid
 
-This repo allows for the implementation of the below archiecture to automate cloud failover for a local k3s cluster to a GKE cluster (on separate networks). This setup provides improves the availability of my personal site while still taking advantage of the reduced computing costs of using local resources.
+This repo allows for the implementation of the below architecture to automate cloud failover for a local k3s cluster to a GKE cluster (on separate networks). This setup improves the availability of my personal site while still taking advantage of the reduced computing costs of using local resources.
 
 ![failover diagram](gke-k3s-karmada-hybrid.drawio.png "Failover Diagram")
 
@@ -25,7 +25,7 @@ This repository includes setup steps that can be followed with some care to achi
 11. Now you can apply deployments to Karmada's API server. By applying PropagationPolicy, you can propagate them to your GKE and k3s clusters. By marking services for linkerd mirroring, you can cause k3s services to appear in GKE. By defining TrafficSplits for your GKE-desktop service pairs with failover annotations, you can use them as the backend for ingress to achieve multicluster failover.
 
 ## Deploying applications to this setup
-I included an example Helm chart in /helm/example that shows a default Helm chart with changes applied to faciliate this failover setup. These include:
+I included an example Helm chart in /helm/example that shows a default Helm chart with changes applied to facilitate this failover setup. These include:
 
 - Marking services for mirroring by linkerd in templates/service.yaml
 - Including a propagationPolicy.yaml to propagate the chart's resources. I recommend using 'helm template' to check all resource types that will need propagation.
